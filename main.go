@@ -14,20 +14,26 @@ import (
 	"time"
 )
 
-const basePath = "/api"
-const timePath = basePath + "/time"
+const (
+	basePath = "/api"
+	timePath = basePath + "/time"
+	port     = "8080"
+)
 
 type timeZones struct {
-	data map[string]string `json:"timezones"`
+	data   map[string]string `json:"timezones"`
+	logger *log.Logger
 }
 
-func New() *timeZones {
+func New(logger *log.Logger) *timeZones {
 	return &timeZones{
-		data: make(map[string]string),
+		data:   make(map[string]string),
+		logger: logger,
 	}
 }
 
 func (tz *timeZones) ServeHTTP(w http.ResponseWriter, r *http.Request) {
+	tz.logger.Printf("method:%v, path:%v", r.Method, r.URL.Path)
 	if r.Method == http.MethodGet {
 		tz.getTimeZone(w, r)
 		return
@@ -73,13 +79,13 @@ func parseTimeZonesFromQuery(queryValues url.Values) map[string]struct{} {
 }
 
 func main() {
+	logger := log.New(os.Stdout, "timezone-service ", log.LstdFlags)
 	mux := http.NewServeMux()
-	tz := New()
+	tz := New(logger)
 	mux.Handle(timePath, tz)
 
-	logger := log.New(os.Stdout, "timezone-service ", log.LstdFlags)
 	svr := http.Server{
-		Addr:         ":8081",
+		Addr:         fmt.Sprintf(":%s", port),
 		Handler:      mux,
 		ReadTimeout:  time.Second * 1,
 		WriteTimeout: time.Second * 10,
@@ -99,6 +105,7 @@ func main() {
 		}
 	}()
 
+	logger.Printf("listening on port: %v", port)
 	shutdown := make(chan os.Signal, 1)
 	signal.Notify(shutdown, os.Interrupt, syscall.SIGTERM)
 
