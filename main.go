@@ -52,7 +52,7 @@ func (tz *timeZones) getTimeZone(w http.ResponseWriter, r *http.Request) {
 		for k := range parsedQueryValues {
 			loc, err := time.LoadLocation(k)
 			if err != nil {
-				msg := fmt.Sprintf("timezone: %q is invalid.", k)
+				msg := fmt.Sprintf("timezone: %q is invalid", k)
 				tz.logger.Printf("msg: %v, err: %v", msg, err)
 				http.Error(w, msg, http.StatusNotFound)
 				return
