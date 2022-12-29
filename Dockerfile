@@ -1,11 +1,9 @@
-FROM golang:1.19.4-bullseye AS builder
-COPY . /app
-WORKDIR /app
-RUN go build -o tz main.go
-
-FROM alpine:3.17.0
-WORKDIR /app
-COPY --from=builder  /app/tz /app/tz
-
+FROM golang:alpine AS builder
+WORKDIR /go/src/app
+COPY . /go/src/app
+RUN CGO_ENABLED=0 GOOS=linux go build -a -installsuffix cgo -tags timetzdata -o timezones main.go
 EXPOSE 8080
-CMD ["./tz"]
+
+FROM scratch
+COPY --from=builder /go/src/app/timezones /
+CMD ["./timezones"]
