@@ -21,13 +21,13 @@ const (
 )
 
 type timeZones struct {
-	data   map[string]string `json:"timezones"`
+	Data   map[string]string `json:"timezones"`
 	logger *log.Logger
 }
 
 func New(logger *log.Logger) *timeZones {
 	return &timeZones{
-		data:   make(map[string]string),
+		Data:   make(map[string]string),
 		logger: logger,
 	}
 }
@@ -47,19 +47,21 @@ func (tz *timeZones) getTimeZone(w http.ResponseWriter, r *http.Request) {
 	encoder := json.NewEncoder(w)
 	switch len(parsedQueryValues) {
 	case 0:
-		tz.data["UTC"] = now.Format(time.RFC822)
+		tz.Data["UTC"] = now.Format(time.RFC822)
 	default:
-		for k, _ := range parsedQueryValues {
+		for k := range parsedQueryValues {
 			loc, err := time.LoadLocation(k)
 			if err != nil {
-				http.Error(w, fmt.Sprint("invalid timezone"), http.StatusNotFound)
+				msg := fmt.Sprintf("timezone: %q is invalid.", k)
+				tz.logger.Printf("msg: %v, err: %v", msg, err)
+				http.Error(w, msg, http.StatusNotFound)
 				return
 			}
-			tz.data[k] = now.In(loc).String()
+			tz.Data[k] = now.In(loc).String()
 		}
 	}
 
-	if err := encoder.Encode(tz.data); err != nil {
+	if err := encoder.Encode(tz.Data); err != nil {
 		http.Error(w, fmt.Sprintf("internal server error"), http.StatusInternalServerError)
 	}
 }
