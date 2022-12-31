@@ -1,0 +1,17 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: timezones-service
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      pod: timezones-service
+  template:
+    metadata:
+      labels:
+        pod: timezones-service
+    spec:
+      containers:
+        - name: timezone-service-container
+          image: docker.io/reversearrow/timezones:latest
