@@ -1,5 +1,7 @@
+.PHONY: build
 build:
-	docker build . -t timezones
+	./scripts/build-and-push.sh
 
+.PHONY: run
 run:
 	docker run -p 8080:8080 timezones
