@@ -7,6 +7,11 @@ spec:
   selector:
     matchLabels:
       pod: timezones-service
+  strategy:
+    type: RollingUpdate
+    rollingUpdate:
+      maxSurge: 3
+      maxUnavailable: 1
   template:
     metadata:
       labels:
