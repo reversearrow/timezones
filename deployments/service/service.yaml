@@ -6,7 +6,7 @@ spec:
   selector:
     pod: timezones-service
   ports:
-    - port: 80
+    - port: 8080
       targetPort: 8080
       protocol: TCP
-  type: LoadBalancer
+  type: NodePort
